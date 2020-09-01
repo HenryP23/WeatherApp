@@ -6,7 +6,8 @@
 - [Visual](#Visual)
 
 ## Description
-This app allows you to get data from a city of your choosing
+This app allows you to get data from a city of your choosing  
+https://henryp23.github.io/WeatherApp/  
 
 ## Usage
 Search a city of your choice to get data about it  
