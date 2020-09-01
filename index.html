@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row mt-5 ">
+            <div class="col-4 ">
+                <p>Search for a city: </p>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Enter City" aria-label="Recipient's username"
+                        aria-describedby="button-addon2" id="input">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" id="button-addon2">Search</button>
+                    </div>
+                </div>
+                <div id="searchedPlaces" class="border">
+
+                </div>
+            </div>
+            <div class="col-8 border">
+                <div id="placeInfo"></div>
+
+            </div>
+        </div>
+        <div class="row mt-5 ">
+            <div class="col-4 ">
+            </div>
+            <div class="col-sm ml-2 border ">
+                <div class="1"></div>
+            </div>
+            <div class="col-sm ml-2 border ">
+                <div class="2"></div>
+            </div>
+            <div class="col-sm ml-2 border ">
+                <div class="3"></div>
+            </div>
+            <div class="col-sm ml-2 border ">
+                <div class="4"></div>
+            </div>
+            <div class="col-sm ml-2 border ">
+                <div class="5"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var weatherData;
+        var city;
+        var m = moment().format('l');
+        var lat;
+        var lon;
+        var queryURL;
+        var forecastQueryURL;
+
+        // search for temp, humidity and wind speed with api
+        function searchWeather() {
+            queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=8461a008ddf6cccccf11f51f37abb929&units=imperial";
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            }).then(function (response) {
+                lat = response.coord.lat;
+                lon = response.coord.lon;
+                city = "<h2>" + city + " (" + m + ")" + "</h2><br>";
+                var temp = "<p1>" + "Temperature: " + response.main.temp + " f" + "</p1><br><br>";
+                var hum = "<p1>" + "Humidity: " + response.main.humidity + " %" + "</p1><br><br>";
+                var wind = "<p1>" + "Wind Speed: " + response.wind.speed + " MPH" + "</p1><br><br>";
+
+
+
+                $("#placeInfo").append(city, temp, hum, wind);
+                console.log(response);
+                searchUV();
+            });
+
+
+
+
+        }
+        // search for UV Index with api using lat and lon values found in searchWeather()
+        function searchUV() {
+            queryURL = "https://api.openweathermap.org/data/2.5/uvi/forecast?appid=8461a008ddf6cccccf11f51f37abb929&lat=" + lat + "&lon=" + lon;
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            }).then(function (response) {
+                console.log(response[0].value);
+                var temporary = response[0].value;
+                var uv = "<p1>" + "UV Index:  " + response[0].value + "</p1>";
+
+                $("#placeInfo").append(uv);
+
+            });
+        }
+
+
+        // search for data on button click
+        $('.btn').on('click', function () {
+            clear();
+            city = $("#input").val();
+            console.log(city);
+            var history = "<p1>" + city + "</p1><br>";
+            $("#searchedPlaces").append(history);
+            searchWeather();
+            search5DayForecast();
+        });
+
+        //search for 5 day forecast with api
+        function search5DayForecast() {
+            forecastQueryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=8461a008ddf6cccccf11f51f37abb929&units=imperial";
+            var fiveDayTemp = [];
+            var fiveDayTime = [];
+            var fiveDayHum = [];
+            var index = 0;
+            var classIndex = 1;
+            $.ajax({
+                url: forecastQueryURL,
+                method: "GET"
+            }).then(function (response) {
+                console.log(response);
+                for (var i = 0; i <= response.list.length; i += 8) {
+
+
+                    fiveDayTemp[index] = response.list[i].main.temp;
+                    fiveDayTime[index] = response.list[i].dt_txt;
+                    fiveDayHum[index] = response.list[i].main.humidity;
+                    var temporary = fiveDayTime[index].toString();
+                    var timeShorthand = temporary.slice(0, 10);
+
+                    var time = "<p1>" + timeShorthand + "</p1><br>";
+                    var temp = "<p1>" + "Temp: " + fiveDayTemp[index] + " f" + "</p1><br>";
+                    var hum = "<p1>" + "Humidity: " + fiveDayHum[index] + " %" + "</p1><br>";
+                    $("." + classIndex).append(time, temp, hum);
+
+                    index++;
+                    classIndex++;
+                }
+
+            });
+        }
+
+        //clear all dynamic text when the user searches for another city. 
+        function clear() {
+            $("#placeInfo").empty();
+            $(".1").empty();
+            $(".2").empty();
+            $(".3").empty();
+            $(".4").empty();
+            $(".5").empty();
+        }
+
+
+
+
+
+    </script>
+</body>
+
+
+</html>
