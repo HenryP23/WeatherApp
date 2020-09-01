@@ -17,4 +17,4 @@ Henry Parrish
 
 ## Visual
 
-![Screencapture](screencapture-portfolio.png)
+![Screencapture](weatherappPic.PNG)
